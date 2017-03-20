@@ -86,7 +86,8 @@ public class Word {
 		}
 
 		this.pos = checkPOS();
-
+		this.save();
+		
 		return this.pos;
 	}
 
@@ -142,7 +143,6 @@ public class Word {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		}
 		System.out.print("[!] POS NOT FOUND FOR: " + word + main.newLine);
 
