@@ -87,7 +87,7 @@ public class Word {
 
 		this.pos = checkPOS();
 		this.save();
-		
+
 		return this.pos;
 	}
 
@@ -115,7 +115,8 @@ public class Word {
 		if (pos == null || pos == "") {
 
 			try {
-				JsonObject obj = Parser.readJsonFromUrl("http://api.pearson.com/v2/dictionaries/entries?headword=" + word);
+				JsonObject obj = Parser
+						.readJsonFromUrl("http://api.pearson.com/v2/dictionaries/entries?headword=" + word);
 
 				if (obj != null && obj.size() > 0) {
 					JsonArray a = obj.get("results").getAsJsonArray();
@@ -128,8 +129,9 @@ public class Word {
 
 							String temppos = el.getAsJsonObject().get("part_of_speech").getAsString();
 
-							if (temppos != null && !temppos.equalsIgnoreCase(currentPos) && !temppos.equalsIgnoreCase("noun")) {
-								System.out.print("[!] CHECKING POS IS: " + temppos +  " FOR: " + word + main.newLine);
+							if (temppos != null && !temppos.equalsIgnoreCase(currentPos)
+									&& !temppos.equalsIgnoreCase("noun")) {
+								System.out.print("[!] CHECKING POS IS: " + temppos + " FOR: " + word + main.newLine);
 								currentPos = temppos;
 							}
 
@@ -143,10 +145,12 @@ public class Word {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
-		System.out.print("[!] POS NOT FOUND FOR: " + word + main.newLine);
+			
+			System.out.print("[!] POS NOT FOUND FOR: " + word + main.newLine);
 
-		return "NoUn";
+		}
+
+		return this.pos;
 	}
 
 	public JsonObject addAfterWord(String s) {
@@ -228,7 +232,8 @@ public class Word {
 					nc += ((float) count) * 0.2;
 
 					if (nc > comp) {
-						System.out.print("	searching matched sentences [ " + nc + " ]  --> " + ja.toString() + main.newLine);
+						System.out.print(
+								"	searching matched sentences [ " + nc + " ]  --> " + ja.toString() + main.newLine);
 						comp = nc;
 						nextPOS = nextPOS.replace("modal ", "");
 						nextPOSCount = ((float) 0.05) * count;
@@ -278,11 +283,13 @@ public class Word {
 							float pf = ((float) p1 - p2) * penalty;
 							pf += bonus;
 
-							if (pf > prob && !ent.toString().equalsIgnoreCase(this.toString()) && ent.toString().equalsIgnoreCase("the")) {
+							if (pf > prob && !ent.toString().equalsIgnoreCase(this.toString())
+									&& ent.toString().equalsIgnoreCase("the")) {
 								if (bonus != 0) {
 									System.out.print(" Bonus " + bonus + " added being: " + nextPOS + main.newLine);
 								}
-								System.out.print(ent.toString() + " after " + this.toString() + " --> " + p1 + " * " + p2 + " * " + penalty + " = " + pf + main.newLine);
+								System.out.print(ent.toString() + " after " + this.toString() + " --> " + p1 + " * "
+										+ p2 + " * " + penalty + " = " + pf + main.newLine);
 								prob = pf;
 								top = ent;
 							}
