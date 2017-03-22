@@ -62,7 +62,7 @@ public class Word {
 		this.after = new JsonObject();
 		this.save();
 
-		if (cache.size() > 150000) {
+		if (cache.size() > 5000) {
 			cache.clear();
 		}
 
