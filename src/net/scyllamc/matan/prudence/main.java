@@ -42,11 +42,16 @@ public class main extends JFrame {
 	private static JTextPane inputProb;
 	private static File config;
 	private static Integer wordCount = -1;
-	private static String defaultDir = "/Users/matanrak/AI_DATA";
+	private static String defaultDir;
 	private static JLabel labelTime;
-	
 
 	public static void main(String[] args) {
+
+		if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0) {
+			defaultDir = "D:\\Matan Rak\\Java Projects\\AI_DATA";
+		}else{
+			defaultDir = "/Users/matanrak/AI_DATA";
+		}
 
 		main frame = new main();
 		frame.setVisible(true);
@@ -137,11 +142,11 @@ public class main extends JFrame {
 			}
 		});
 		contentPane.add(inputProb);
-		
+
 		JScrollPane scrollBar = new JScrollPane(inputProb);
 		scrollBar.setBounds(6, 485, 304, 191);
 		contentPane.add(scrollBar);
-		
+
 		JLabel lblEnterAWord = new JLabel("Enter a word and press space to auto suggest");
 		lblEnterAWord.setBounds(6, 457, 304, 16);
 		contentPane.add(lblEnterAWord);
@@ -184,9 +189,8 @@ public class main extends JFrame {
 
 		}
 
-		labelCount.setText("Global word count: " + main.wordCount + " Cache: "  + Word.cache.size());
+		labelCount.setText("Global word count: " + main.wordCount + " Cache: " + Word.cache.size());
 
-		
 		return main.wordCount;
 	}
 
@@ -252,7 +256,7 @@ public class main extends JFrame {
 				count++;
 			}
 		}
-		
+
 		return count;
 	}
 }

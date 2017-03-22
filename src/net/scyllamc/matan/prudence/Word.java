@@ -256,7 +256,7 @@ public class Word {
 						if (count > 0) {
 
 							float p1 = ((float) value * 2) / getCount();
-							float p2 = ((float) count * 4) / total;
+							float p2 = ((float) count) / total;
 
 							float penalty = 1;
 
@@ -278,7 +278,7 @@ public class Word {
 							float pf = ((float) p1 - p2) * penalty;
 							pf += bonus;
 
-							if (pf > prob && ent.toString() != this.toString()) {
+							if (pf > prob && !ent.toString().equalsIgnoreCase(this.toString()) && ent.toString().equalsIgnoreCase("the")) {
 								if (bonus != 0) {
 									System.out.print(" Bonus " + bonus + " added being: " + nextPOS + main.newLine);
 								}
