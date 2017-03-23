@@ -5,8 +5,13 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import org.apache.commons.validator.UrlValidator;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
+import net.scyllamc.matan.prudence.learning.ArticleFetch;
+import net.scyllamc.matan.prudence.learning.Website;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -21,6 +26,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -39,7 +48,7 @@ public class main extends JFrame {
 	private static JTextArea inputParse;
 	private static JProgressBar barParse;
 	private static JLabel labelCount;
-	private static JTextPane inputProb;
+	public static JTextPane inputProb;
 	private static File config;
 	private static Integer wordCount = -1;
 	private static String defaultDir;
@@ -49,7 +58,7 @@ public class main extends JFrame {
 
 		if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0) {
 			defaultDir = "D:\\Matan Rak\\Java Projects\\AI_DATA";
-		}else{
+		} else {
 			defaultDir = "/Users/matanrak/AI_DATA";
 		}
 
@@ -71,12 +80,6 @@ public class main extends JFrame {
 		JButton btnParse = new JButton();
 		btnParse.setBounds(0, 311, 164, 29);
 		btnParse.setText("Try parse");
-
-		btnParse.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {
-				Parser.Parse(inputParse.getText());
-			}
-		});
 
 		JLabel lblNewLabel = new JLabel("Made by Matan Rak, 2017");
 		lblNewLabel.setBounds(6, 705, 425, 16);
@@ -152,6 +155,44 @@ public class main extends JFrame {
 
 		config = new File(getDir() + File.separator + "_CONFIG_.json");
 		wordCount = getTotalWordCount();
+
+		btnParse.addMouseListener(new MouseAdapter() {
+			@SuppressWarnings("deprecation")
+			public void mousePressed(MouseEvent e) {
+
+				if (inputParse.getText().length() > 0) {
+
+					if (new UrlValidator(new String[] { "http", "https" }).isValid(inputParse.getText())) {
+						
+						final ExecutorService service;
+				        final Future<String>  task;
+
+				        service = Executors.newFixedThreadPool(1);        
+				        task  = service.submit(new ArticleFetch(Website.CNN));
+
+				        try {
+				            final String str;
+
+				            str = task.get();
+				            
+				            System.out.println(str);
+				            System.out.println("DONE");
+				        } catch(final InterruptedException ex) {
+				            ex.printStackTrace();
+				        } catch(final ExecutionException ex) {
+				            ex.printStackTrace();   
+				        }
+						//Parser.fetchArticles(inputParse.getText(), "story");						
+
+					} else {
+						
+						Parser.Parse(inputParse.getText());
+						
+					}
+
+				}
+			}
+		});
 
 	}
 
