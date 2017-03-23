@@ -115,8 +115,8 @@ public class Word {
 		if (pos == null || pos == "") {
 
 			try {
-				JsonObject obj = Parser
-						.readJsonFromUrl("http://api.pearson.com/v2/dictionaries/entries?headword=" + word);
+				
+				JsonObject obj = Parser.readJsonFromUrl("http://api.pearson.com/v2/dictionaries/entries?headword=" + word);
 
 				if (obj != null && obj.size() > 0) {
 					JsonArray a = obj.get("results").getAsJsonArray();
@@ -129,8 +129,7 @@ public class Word {
 
 							String temppos = el.getAsJsonObject().get("part_of_speech").getAsString();
 
-							if (temppos != null && !temppos.equalsIgnoreCase(currentPos)
-									&& !temppos.equalsIgnoreCase("noun")) {
+							if (temppos != null && !temppos.equalsIgnoreCase(currentPos) && !temppos.equalsIgnoreCase("noun")) {
 								System.out.print("[!] CHECKING POS IS: " + temppos + " FOR: " + word + main.newLine);
 								currentPos = temppos;
 							}
@@ -145,7 +144,7 @@ public class Word {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
+
 			System.out.print("[!] POS NOT FOUND FOR: " + word + main.newLine);
 
 		}
@@ -209,6 +208,8 @@ public class Word {
 
 	public Word getProbableAfterWord(String sentence) {
 
+		System.out.println("Trying to get a probable word");
+
 		if (after.size() > 0) {
 
 			Sentence sen = new Sentence(sentence, false);
@@ -219,42 +220,55 @@ public class Word {
 
 			Gson gson = new Gson();
 
-			System.out.print(" current sentence [ " + sen.getSum().toString() + " ]");
+			
+			System.out.print("Current Word: " + this.toString() + main.newLine);
+			System.out.print("Sentence: " + sen.getSum().toString() +  main.newLine);
 
+			System.out.print(" Searching for matches: " +  main.newLine);
 			for (Entry<String, JsonElement> entry : sentences.entrySet()) {
+
 
 				JsonArray ja = gson.fromJson(entry.getKey(), JsonArray.class);
 				int count = Integer.parseInt(entry.getValue().toString());
 
-				if (ja.size() > senindex && ja.size() < senindex + 7) {
+				if (ja.size() >= senindex && ja.size() != 1 && ja.size() < senindex + 7) {
 					float nc = (float) sen.compare(ja);
 
 					nc += ((float) count) * 0.2;
 
 					if (nc > comp) {
-						System.out.print(
-								"	searching matched sentences [ " + nc + " ]  --> " + ja.toString() + main.newLine);
+						System.out.print("  (" + nc + ") " + ja.toString() + main.newLine);
 						comp = nc;
 						nextPOS = nextPOS.replace("modal ", "");
 						nextPOSCount = ((float) 0.05) * count;
-						nextPOS = Parser.clearString(ja.get(senindex).toString());
+
+						if(ja.size() > senindex + 1){
+							nextPOS = Parser.clearString(ja.get(senindex + 1).toString());
+						}
 					}
 				}
 			}
-
-			System.out.print(" [!] found matching next pos [ " + nextPOS + " ]  --> " + comp);
+			
+			if(nextPOS != ""){
+				System.out.print(" Found probable next POS: (" + comp + ") " + nextPOS +  main.newLine);
+			}else{
+				System.out.print(" No match found." +  main.newLine);
+			}
 
 			float prob = 0;
 			Word top = null;
 			final int total = main.getTotalWordCount();
-
+			
+			System.out.print("---------" + main.newLine );
+			System.out.print("Calculating probable word: (" + after.size() + ")" +  main.newLine);
+			
 			for (Entry<String, JsonElement> entry : after.entrySet()) {
 				String s = entry.getKey();
 				int value = Integer.parseInt(entry.getValue().toString());
 
 				if (s != null && s.length() > 0) {
 					Word ent = Word.getWord(s);
-
+					
 					if (ent != null) {
 						int count = ent.getCount();
 
@@ -283,13 +297,19 @@ public class Word {
 							float pf = ((float) p1 - p2) * penalty;
 							pf += bonus;
 
-							if (pf > prob && !ent.toString().equalsIgnoreCase(this.toString())
-									&& ent.toString().equalsIgnoreCase("the")) {
+							if (pf > prob && !ent.toString().equalsIgnoreCase(this.toString()) && !ent.toString().equalsIgnoreCase("the")) {
+								
+								System.out.print(" Word: " + ent.toString() +  main.newLine);
+
 								if (bonus != 0) {
-									System.out.print(" Bonus " + bonus + " added being: " + nextPOS + main.newLine);
+									System.out.print("  Bonus: " + bonus + main.newLine);
 								}
-								System.out.print(ent.toString() + " after " + this.toString() + " --> " + p1 + " * "
-										+ p2 + " * " + penalty + " = " + pf + main.newLine);
+								
+								if(penalty != 0){
+									System.out.print("  Penalty: " + penalty + main.newLine);
+								}
+								
+								System.out.print("  Fin: " + ent.toString() + " --> "  + pf + main.newLine);
 								prob = pf;
 								top = ent;
 							}

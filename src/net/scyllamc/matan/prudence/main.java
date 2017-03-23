@@ -124,7 +124,6 @@ public class main extends JFrame {
 
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-					System.out.println("Trying to get a probable word");
 
 					String[] words = inputProb.getText().split("\\s+");
 					String s = words[words.length - 1].replaceAll("[^a-zA-Z]", "");

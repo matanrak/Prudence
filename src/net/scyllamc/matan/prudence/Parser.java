@@ -11,6 +11,11 @@ import java.text.BreakIterator;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -18,28 +23,26 @@ public class Parser {
 
 	public static void Parse(final String in) {
 
-
 		final long starttime = System.currentTimeMillis();
 
 		new Thread(new Runnable() {
 			public void run() {
 
-				
 				int len = in.split("\\s+").length;
 				int index = 0;
-				
+
 				BreakIterator iterator = BreakIterator.getSentenceInstance(Locale.US);
 
 				iterator.setText(in);
 				int start = iterator.first();
-			
-				for(int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()){
 
-					String s = in.substring(start,end);
-					
+				for (int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()) {
+
+					String s = in.substring(start, end);
+
 					Sentence sentence = new Sentence(s, true);
 					index += sentence.getSize();
-					
+
 					long per = (long) ((float) (index + 1) / len * 100);
 					main.updateBar(per);
 
@@ -47,14 +50,13 @@ public class Parser {
 					String time = String.format("%d min, %d sec", TimeUnit.MILLISECONDS.toMinutes(elapsed), TimeUnit.MILLISECONDS.toSeconds(elapsed) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(elapsed)));
 					main.updateTime(time);
 
-					System.out.print(per + "% -->" +  main.newLine);
+					System.out.print(per + "% -->" + main.newLine);
 				}
 
 			}
 		}).start();
 
 	}
-	
 
 	public static String clearString(String in) {
 
@@ -63,25 +65,49 @@ public class Parser {
 
 		return s;
 	}
-	
-	 private static String readAll(Reader rd) throws IOException {
-		    StringBuilder sb = new StringBuilder();
-		    int cp;
-		    while ((cp = rd.read()) != -1) {
-		      sb.append((char) cp);
-		    }
-		    return sb.toString();
-		  }
-	 
-	 public static JsonObject readJsonFromUrl(String url) throws IOException {
-		    InputStream is = new URL(url).openStream();
-		    try {
-		      BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-		      String jsonText = readAll(rd);
-		      JsonObject json = new Gson().fromJson(jsonText, JsonObject.class);
-		      return json;
-		    } finally {
-		      is.close();
-		    }
-		  }
+
+	private static String readAll(Reader rd) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		int cp;
+		while ((cp = rd.read()) != -1) {
+			sb.append((char) cp);
+		}
+		return sb.toString();
+	}
+
+	/**
+	public static String wordLookup(String word) {
+		try {
+			
+		
+		HttpClient client = HttpClientBuilder.create().build();
+		
+		HttpGet request = new HttpGet("https://wordsapiv1.p.mashape.com/words/" + clearString(word) + "/definitions");
+		request.setHeader("X-Mashape-Key", "pBPceCSJAJmshmYkZ71KkXw28oX0p1uPK83jsnPIudMNVy2TUi");
+		request.setHeader("Accept", "application/json");
+		
+		HttpResponse response = client.execute(request);
+		
+		
+		return response.toString();
+		
+		}catch (IOException e){
+			e.printStackTrace();
+		}
+		
+		return "failed";
+	} 
+
+**/
+	public static JsonObject readJsonFromUrl(String url) throws IOException {
+		InputStream is = new URL(url).openStream();
+		try {
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+			String jsonText = readAll(rd);
+			JsonObject json = new Gson().fromJson(jsonText, JsonObject.class);
+			return json;
+		} finally {
+			is.close();
+		}
+	}
 }
