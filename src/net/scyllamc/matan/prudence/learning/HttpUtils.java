@@ -7,7 +7,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import net.scyllamc.matan.prudence.main;
+import net.scyllamc.matan.prudence.utils.Utils;
 
 public class HttpUtils {
 
@@ -51,7 +51,7 @@ public class HttpUtils {
 
 		for (String s : a) {
 			fin += s;
-			fin += main.newLine;
+			fin += Utils.newLine;
 		}
 
 		return fin;

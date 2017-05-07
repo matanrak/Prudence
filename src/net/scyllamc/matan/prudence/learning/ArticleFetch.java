@@ -1,7 +1,6 @@
 package net.scyllamc.matan.prudence.learning;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.validator.UrlValidator;
@@ -15,8 +14,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import net.scyllamc.matan.prudence.main;
+import net.scyllamc.matan.prudence.utils.Utils;
 
+@SuppressWarnings("deprecation")
 public class ArticleFetch implements Callable<String> {
 
 	private Website site;
@@ -27,7 +27,6 @@ public class ArticleFetch implements Callable<String> {
 		this.text = "EMPTY";
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public String call() throws Exception {
 
@@ -43,7 +42,7 @@ public class ArticleFetch implements Callable<String> {
 			Document doc = Jsoup.parse(HTML);
 			Elements links = doc.select("a");
 
-			System.out.print("Searching URL: " + site.getURL() + main.newLine);
+			System.out.print("Searching URL: " + site.getURL() + Utils.newLine);
 
 			int count = 0;
 			int max = 50;
@@ -56,15 +55,15 @@ public class ArticleFetch implements Callable<String> {
 					if (count > min && el.absUrl("href") != null && new UrlValidator(new String[] { "http", "https" }).isValid(el.absUrl("href")) && !el.absUrl("href").contains("video")) {
 
 						final String elurl = el.absUrl("href");
-						System.out.print("	Sub URL: " + elurl + main.newLine);
+						System.out.print("	Sub URL: " + elurl + Utils.newLine);
 
 						String elHTML = EntityUtils.toString(client.execute(new HttpGet(elurl)).getEntity());
 						String urltext = HttpUtils.getHtmlClassText(elHTML, site);
 
-						System.out.print("		text lenght: " + urltext.length() + main.newLine);
+						System.out.print("		text lenght: " + urltext.length() + Utils.newLine);
 
 						text +=  " " + urltext;
-						main.inputProb.setText(text);
+						//UI.inputProb.setText(text);
 
 					}
 

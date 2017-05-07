@@ -4,40 +4,45 @@ import java.util.ArrayList;
 
 import com.google.gson.JsonArray;
 
+import net.scyllamc.matan.prudence.utils.Utils;
+
 public class Sentence {
 
-	private ArrayList<Word> w = new ArrayList<Word>();
+	private ArrayList<Word> words = new ArrayList<Word>();
 
-	public Sentence(String in, boolean parse) {
+	public Sentence(ArrayList<Word> words) {
+		this.words = words;
+	}
 
-		String[] words = in.split("\\s+");
+	public int getSize() {
+		return this.words.size();
+	}
 
-		for (int i = 0; i < words.length; i++) {
+	public void registerSentence() {
+		for (Word word : this.words) {
+			if (word != null) {
+				word.addSentence(this.getSum());
+			}
+		}
+	}
+	
+	
+	public Sentence(String in){
 
-			if (words[i] != null) {
+		String[] wordsa = in.split("\\s+");
 
-				String s = Parser.clearString(words[i]);
+		for (int i = 0; i < wordsa.length; i++) {
+
+			if (wordsa[i] != null) {
+
+				String s = Utils.clearString(wordsa[i]);
 
 				if (s.length() > 0) {
 					Word word = Word.getWord(s);
+					
+					words.add(word);
 
-					if (parse && word != null) {
-						if (i != words.length - 1) {
-							String after = Parser.clearString(words[i + 1]);
-
-							if (after.length() > 0) {
-								word.addAfterWord(after);
-							}
-						}
-
-						word.addCount(1);
-						main.addWordCount(1);
-						registerSentence();
-					}
-
-					w.add(word);
-
-					System.out.print("   (" + i + ") " + s.toUpperCase() + main.newLine);
+					System.out.print("   (" + i + ") " + s.toUpperCase() + Utils.newLine);
 				}
 			}
 
@@ -45,27 +50,16 @@ public class Sentence {
 
 	}
 
-	public int getSize() {
-		return w.size();
-	}
-
-	public void registerSentence() {
-		for (Word word : w) {
-			if (word != null) {
-				word.addSentence(this.getSum());
-			}
-		}
-	}
 
 	public ArrayList<Word> getWords() {
-		return this.w;
+		return this.words;
 	}
 
 	public JsonArray getSum() {
 
 		JsonArray sum = new JsonArray();
 
-		for (Word word : w) {
+		for (Word word : this.words) {
 
 			if (word != null) {
 				sum.add(word.getPOS());
@@ -79,8 +73,8 @@ public class Sentence {
 
 		int score = 0;
 
-		for (int r = 0; r < this.w.size(); r++) {
-			Word w1 = w.get(r);
+		for (int r = 0; r < this.words.size(); r++) {
+			Word w1 = this.words.get(r);
 
 			if (arr.size() > r) {
 				String pos = arr.get(r).toString();

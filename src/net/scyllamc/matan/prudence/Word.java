@@ -14,6 +14,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import net.scyllamc.matan.prudence.utils.JsonUrl;
+import net.scyllamc.matan.prudence.utils.Utils;
+
 public class Word {
 
 	public static HashMap<String, Word> cache = new HashMap<String, Word>();
@@ -60,12 +63,7 @@ public class Word {
 
 		this.word = s;
 		this.after = new JsonObject();
-		this.save();
-
-		if (cache.size() > 5000) {
-			cache.clear();
-		}
-
+		
 		cache.put(this.word.toUpperCase(), this);
 
 		new Thread(new Runnable() {
@@ -86,7 +84,6 @@ public class Word {
 		}
 
 		this.pos = checkPOS();
-		this.save();
 
 		return this.pos;
 	}
@@ -105,7 +102,6 @@ public class Word {
 
 	public int addCount(int i) {
 		this.count += i;
-		this.save();
 
 		return this.count;
 	}
@@ -116,7 +112,7 @@ public class Word {
 
 			try {
 				
-				JsonObject obj = Parser.readJsonFromUrl("http://api.pearson.com/v2/dictionaries/entries?headword=" + word);
+				JsonObject obj = JsonUrl.readJsonFromUrl("http://api.pearson.com/v2/dictionaries/entries?headword=" + word);
 
 				if (obj != null && obj.size() > 0) {
 					JsonArray a = obj.get("results").getAsJsonArray();
@@ -130,7 +126,6 @@ public class Word {
 							String temppos = el.getAsJsonObject().get("part_of_speech").getAsString();
 
 							if (temppos != null && !temppos.equalsIgnoreCase(currentPos) && !temppos.equalsIgnoreCase("noun")) {
-								System.out.print("[!] CHECKING POS IS: " + temppos + " FOR: " + word + main.newLine);
 								currentPos = temppos;
 							}
 
@@ -138,14 +133,14 @@ public class Word {
 					}
 
 					this.pos = currentPos;
-					System.out.print("[!] FOUND  POS " + this.pos + " for " + word + main.newLine);
+					return this.pos;
 				}
 
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 
-			System.out.print("[!] POS NOT FOUND FOR: " + word + main.newLine);
+			LogHandler.print(2, "[!] POS NOT FOUND FOR: " + word + Utils.newLine);
 
 		}
 
@@ -165,8 +160,6 @@ public class Word {
 		count++;
 
 		after.addProperty(s.toUpperCase(), count);
-
-		this.save();
 
 		return this.after;
 	}
@@ -189,11 +182,10 @@ public class Word {
 
 		sentences.addProperty(a.toString(), count);
 
-		this.save();
 		return this.sentences;
 	}
 
-	public void save() {
+	public void saveToFile() {
 
 		try {
 			FileWriter writer = new FileWriter(this.getPath());
@@ -212,7 +204,7 @@ public class Word {
 
 		if (after.size() > 0) {
 
-			Sentence sen = new Sentence(sentence, false);
+			Sentence sen = new Sentence(sentence);
 			int senindex = getLocInSentence(sen);
 			String nextPOS = "";
 			float nextPOSCount = 1;
@@ -221,10 +213,10 @@ public class Word {
 			Gson gson = new Gson();
 
 			
-			System.out.print("Current Word: " + this.toString() + main.newLine);
-			System.out.print("Sentence: " + sen.getSum().toString() +  main.newLine);
+			System.out.print("Current Word: " + this.toString() + Utils.newLine);
+			System.out.print("Sentence: " + sen.getSum().toString() +  Utils.newLine);
 
-			System.out.print(" Searching for matches: " +  main.newLine);
+			System.out.print(" Searching for matches: " +  Utils.newLine);
 			for (Entry<String, JsonElement> entry : sentences.entrySet()) {
 
 
@@ -237,30 +229,30 @@ public class Word {
 					nc += ((float) count) * 0.2;
 
 					if (nc > comp) {
-						System.out.print("  (" + nc + ") " + ja.toString() + main.newLine);
+						System.out.print("  (" + nc + ") " + ja.toString() + Utils.newLine);
 						comp = nc;
 						nextPOS = nextPOS.replace("modal ", "");
 						nextPOSCount = ((float) 0.05) * count;
 
 						if(ja.size() > senindex + 1){
-							nextPOS = Parser.clearString(ja.get(senindex + 1).toString());
+							nextPOS = Utils.clearString(ja.get(senindex + 1).toString());
 						}
 					}
 				}
 			}
 			
 			if(nextPOS != ""){
-				System.out.print(" Found probable next POS: (" + comp + ") " + nextPOS +  main.newLine);
+				System.out.print(" Found probable next POS: (" + comp + ") " + nextPOS +  Utils.newLine);
 			}else{
-				System.out.print(" No match found." +  main.newLine);
+				System.out.print(" No match found." +  Utils.newLine);
 			}
 
 			float prob = 0;
 			Word top = null;
-			final int total = main.getTotalWordCount();
+			final int total = main.wordCount;
 			
-			System.out.print("---------" + main.newLine );
-			System.out.print("Calculating probable word: (" + after.size() + ")" +  main.newLine);
+			System.out.print("---------" + Utils.newLine );
+			System.out.print("Calculating probable word: (" + after.size() + ")" +  Utils.newLine);
 			
 			for (Entry<String, JsonElement> entry : after.entrySet()) {
 				String s = entry.getKey();
@@ -299,17 +291,17 @@ public class Word {
 
 							if (pf > prob && !ent.toString().equalsIgnoreCase(this.toString()) && !ent.toString().equalsIgnoreCase("the")) {
 								
-								System.out.print(" Word: " + ent.toString() +  main.newLine);
+								System.out.print(" Word: " + ent.toString() +  Utils.newLine);
 
 								if (bonus != 0) {
-									System.out.print("  Bonus: " + bonus + main.newLine);
+									System.out.print("  Bonus: " + bonus + Utils.newLine);
 								}
 								
 								if(penalty != 0){
-									System.out.print("  Penalty: " + penalty + main.newLine);
+									System.out.print("  Penalty: " + penalty + Utils.newLine);
 								}
 								
-								System.out.print("  Fin: " + ent.toString() + " --> "  + pf + main.newLine);
+								System.out.print("  Fin: " + ent.toString() + " --> "  + pf + Utils.newLine);
 								prob = pf;
 								top = ent;
 							}
