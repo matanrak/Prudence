@@ -1,11 +1,8 @@
 package net.scyllamc.matan.prudence;
 
-import javax.swing.JFrame;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import net.scyllamc.matan.prudence.parser.ParseTaskHandler;
 import net.scyllamc.matan.prudence.utils.FileHandler;
 
 import java.io.BufferedReader;
@@ -16,22 +13,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Timer;
 
+public class Main {
 
-public class main extends JFrame {
+	public static enum Mode { SERVER, GUI; }
 
-	public static enum Mode {
-		SERVER, GUI;
-	}
-
-	public static String version = "0.3";
+	public static String version = "0.4";
 	public static String mainDirectory = "/Users/matanrak/Prudence";
-
-	private static final long serialVersionUID = 1L;
 
 	public static int wordCount = -1;
 	
 	public static Mode mode;
-	private static UI ui;
+	private static GUI ui;
 	private static FileHandler fileHandler;
 	private static Timer parserHandler;
 
@@ -45,9 +37,10 @@ public class main extends JFrame {
 			dir = "D:\\Matan Rak\\Java Projects\\Prudence";
 		} else {
 			dir = "/Users/matanrak/Prudence";
-		}
+		} 
+		
 		parserHandler = new Timer();
-		parserHandler.schedule(new ParseTaskHandler(), 0, 100);
+		parserHandler.schedule(new TaskManager(), 0, 100);
 
 		try {
 
@@ -79,7 +72,7 @@ public class main extends JFrame {
 		config = new File(mainDirectory + File.separator + "_CONFIG_.json");
 
 		if (mode == Mode.GUI) {
-			UI f = new UI();
+			GUI f = new GUI();
 			f.setVisible(true);
 			ui = f;
 		} else {
@@ -100,7 +93,7 @@ public class main extends JFrame {
 	@SuppressWarnings("static-access")
 	public static int getGlobalWordCount() {
 
-		if (main.wordCount == -1) {
+		if (wordCount == -1) {
 
 			if (config == null) {
 				config = new File(mainDirectory + File.separator + "_CONFIG_.json");
@@ -119,25 +112,25 @@ public class main extends JFrame {
 				}
 
 				if (obj.has("globalCount")) {
-					main.wordCount = Integer.parseInt(obj.get("globalCount").toString());
+					wordCount = Integer.parseInt(obj.get("globalCount").toString());
 				}
 
 			} else {
 
 				addWordCount(0);
-				main.wordCount = 0;
+				wordCount = 0;
 
 			}
 
 			if (mode == Mode.GUI) {
 
 				if (ui.labelCount != null) {
-					ui.labelCount.setText("Global word count: " + main.wordCount + " Cache: " + Word.cache.size());
+					ui.labelCount.setText("Global word count: " + wordCount + " Cache: " + Word.cache.size());
 				}
 			}
 
 		}
-		return main.wordCount;
+		return wordCount;
 	}
 
 	public static void addWordCount(Integer i) {

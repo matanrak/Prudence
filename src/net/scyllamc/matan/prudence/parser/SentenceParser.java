@@ -3,24 +3,25 @@ package net.scyllamc.matan.prudence.parser;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import net.scyllamc.matan.prudence.Main;
 import net.scyllamc.matan.prudence.Sentence;
 import net.scyllamc.matan.prudence.Word;
-import net.scyllamc.matan.prudence.main;
 import net.scyllamc.matan.prudence.utils.Utils;
 
 public class SentenceParser implements Runnable {
 
 	private String text;
 	private UUID taskID;
-	
+
 	SentenceParser(String text, UUID taskID) {
 		this.text = text;
 		this.taskID = taskID;
+
 	}
 
 	@Override
 	public void run() {
-		
+
 		ArrayList<Word> array = new ArrayList<Word>();
 		String[] words = text.split("\\s+");
 
@@ -30,7 +31,7 @@ public class SentenceParser implements Runnable {
 				String s = words[i].replaceAll("[^a-zA-Z]", "");
 
 				if (s.length() > 0) {
-					
+
 					Word word = Word.getWord(s);
 
 					if (word != null) {
@@ -41,11 +42,11 @@ public class SentenceParser implements Runnable {
 								word.addAfterWord(after);
 							}
 						}
-						
-						word.addCount(1);
+
 						ParseTask.parseTasks.get(taskID).addCachedWord(word);
-						
-						main.addWordCount(1);
+
+						word.addCount(1);
+						Main.addWordCount(1);
 					}
 					array.add(word);
 
@@ -53,9 +54,9 @@ public class SentenceParser implements Runnable {
 			}
 
 		}
-		
+
 		ParseTask.parseTasks.get(taskID).addWordsParsed(words.length);
 		new Sentence(array).registerSentence();
-		
+
 	}
 }

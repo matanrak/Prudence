@@ -10,14 +10,15 @@ import java.io.IOException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import net.scyllamc.matan.prudence.main;
+import net.scyllamc.matan.prudence.Main;
+
 
 public class FileHandler {
 
 
 	public static enum Files {
 
-		LOG("log", main.getDir());
+		LOG("log", Main.getDir());
 
 		private File file;
 		private File directory;

@@ -28,7 +28,7 @@ public class Word {
 			return word;
 		}
 
-		File f = new File(main.getDir() + File.separator + s.toUpperCase() + ".json");
+		File f = new File(Main.getDir() + File.separator + s.toUpperCase() + ".json");
 
 		if (f.exists()) {
 
@@ -97,7 +97,7 @@ public class Word {
 	}
 
 	public String getPath() {
-		return main.getDir() + File.separator + this.word.toUpperCase() + ".json";
+		return Main.getDir() + File.separator + this.word.toUpperCase() + ".json";
 	}
 
 	public int addCount(int i) {
@@ -198,6 +198,10 @@ public class Word {
 
 	}
 
+	
+	
+	
+	
 	public Word getProbableAfterWord(String sentence) {
 
 		System.out.println("Trying to get a probable word");
@@ -249,7 +253,7 @@ public class Word {
 
 			float prob = 0;
 			Word top = null;
-			final int total = main.wordCount;
+			final int total = Main.wordCount;
 			
 			System.out.print("---------" + Utils.newLine );
 			System.out.print("Calculating probable word: (" + after.size() + ")" +  Utils.newLine);
@@ -271,7 +275,7 @@ public class Word {
 
 							float penalty = 1;
 
-							int itemcount = main.itemCount(sentence, ent);
+							int itemcount = Main.itemCount(sentence, ent);
 
 							for (int r = 0; r < itemcount; r++) {
 
@@ -315,6 +319,14 @@ public class Word {
 		return null;
 	}
 
+	
+	
+	
+	
+	public JsonObject getSentences(){
+		return this.sentences;
+	}
+	
 	public int getLocInSentence(Sentence sen) {
 		int c = 0;
 
