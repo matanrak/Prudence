@@ -33,7 +33,7 @@ public class SentenceComparator implements Runnable {
 			}
 
 			if (found) {
-				PerusalTask.sentenceComparatorTasks.get(taskID).addPOSToPool(sentence[i +1]);
+				PerusalTask.taskList.get(taskID).addPOSToPool(sentence[i +1]);
 			}
 		}
 		

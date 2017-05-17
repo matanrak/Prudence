@@ -24,7 +24,7 @@ import net.scyllamc.matan.prudence.utils.Utils;
 
 public class PerusalTask implements PTask {
 
-	public static HashMap<UUID, PerusalTask> sentenceComparatorTasks = new HashMap<UUID, PerusalTask>();
+	public static HashMap<UUID, PerusalTask> taskList = new HashMap<UUID, PerusalTask>();
 	
 	private UUID ID;
 	private Word word;
@@ -35,7 +35,8 @@ public class PerusalTask implements PTask {
 	private boolean started;
 	private int totalPOS;
 	
-	private JsonObject posPool = new JsonObject();
+	public JsonObject posPool = new JsonObject();
+	public JsonObject wordProbability = new JsonObject();
 
 	
 	public PerusalTask(Word word, String[] subStrings){
@@ -53,7 +54,7 @@ public class PerusalTask implements PTask {
 		
 		this.sub = sub;
 
-		sentenceComparatorTasks.put(this.ID, this);
+		taskList.put(this.ID, this);
 		LogHandler.print(0, "Adding task, ID: " + this.ID.toString());
 	
 		
@@ -114,8 +115,13 @@ public class PerusalTask implements PTask {
 				
 				
 				JsonObject fin = new JsonObject();
-				fin.add("sentences", posPool);
-				fin.addProperty("total_pos", totalPOS);
+				fin.addProperty("Word", word.toString());
+				fin.addProperty("Word_Pos", word.getPOS());
+				fin.addProperty("Word_Count", word.getCount());
+				fin.addProperty("Total_Count", Main.wordCount);
+				fin.addProperty("Probability", gson.toJson(Utils.sortJsonObject(wordProbability)));
+			//	fin.add("Sentences", posPool);
+			//	fin.addProperty("total_pos", totalPOS);
 				
 				try {
 					FileWriter writer = new FileWriter(file);
@@ -124,7 +130,7 @@ public class PerusalTask implements PTask {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			
+		
 				Main.setGlobalWordCount(Main.wordCount);
 				
 				finished = true; 
@@ -147,7 +153,6 @@ public class PerusalTask implements PTask {
 		this.totalPOS++;
 		
 		if (this.posPool.has(s)) {
-			LogHandler.print(2, "Adding pos " + s);
 			this.posPool.addProperty(s, this.posPool.get(s).getAsInt() + 1);
 		} else {
 			this.posPool.addProperty(s, 1);
