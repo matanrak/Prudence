@@ -1,6 +1,7 @@
 package net.scyllamc.matan.prudence.utils;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -38,4 +39,26 @@ public class Utils {
 		return sorted;
     }
 	
+	
+	public static String arrayToString(ArrayList<String> a) {
+		String fin = "";
+
+		for (String s : a) {
+			fin += s;
+			fin += Utils.newLine;
+		}
+
+		return fin;
+	}
+	
+	public static String arrayToString(String[] a) {
+		String fin = "";
+
+		for (String s : a) {
+			fin += s;
+			fin += Utils.newLine;
+		}
+
+		return fin;
+	}
 }

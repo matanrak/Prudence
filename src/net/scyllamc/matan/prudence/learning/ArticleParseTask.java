@@ -13,16 +13,18 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import net.scyllamc.matan.prudence.LogHandler;
+
 @SuppressWarnings("deprecation")
 public class ArticleParseTask implements Runnable {
 
-	private Element element;
+	private String url;
 	private HttpClient client;
 	private Website site;
 	private UUID taskID;
 
-	ArticleParseTask(Element element, HttpClient client, Website site, UUID taskID) {
-		this.element = element;
+	ArticleParseTask(String url, HttpClient client, Website site, UUID taskID) {
+		this.url = url;
 		this.taskID = taskID;
 		this.site = site;
 		this.client = client;
@@ -31,18 +33,17 @@ public class ArticleParseTask implements Runnable {
 	@Override
 	public void run() {
 
-		
-		if (element.absUrl("href") != null && new UrlValidator(new String[] { "http", "https" }).isValid(element.absUrl("href")) && !element.absUrl("href").contains("video")) {
+		if (url != null && new UrlValidator(new String[] { "http", "https" }).isValid(url) && !url.contains("video")) {
 
 			try {
-				final String url = element.absUrl("href");
+
 				String HTML = EntityUtils.toString(client.execute(new HttpGet(url)).getEntity());
 				String fin = "";
-				
+
 				Document doc = Jsoup.parse(HTML);
 				Elements pars = doc.select(site.getParType());
 
-				if (HttpUtils.hasMetaData(doc, site)) {
+				if (hasMetaData(doc, site)) {
 
 					for (Element par : pars) {
 
@@ -51,9 +52,11 @@ public class ArticleParseTask implements Runnable {
 						}
 
 					}
+				}else{
+					LogHandler.print(3, "NO META DATA: " + url);
 				}
-				
-				WebsiteFetcher.webFetchTasks.get(taskID).addArticleText(fin);
+
+				WebsiteFetcher.webFetchTasks.get(taskID).addArticleText(fin, url);
 			} catch (ParseException | IOException e) {
 				e.printStackTrace();
 			}
@@ -61,4 +64,14 @@ public class ArticleParseTask implements Runnable {
 
 	}
 
+	public static boolean hasMetaData(Document doc, Website site) {
+
+		for (Element md : doc.select("meta[" + site.getMetaVar() + "]")) {
+			if (md.attr(site.getMetaVar()).equalsIgnoreCase(site.getArticleMetaData())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 }

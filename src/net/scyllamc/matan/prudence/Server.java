@@ -1,29 +1,55 @@
 package net.scyllamc.matan.prudence;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.google.gson.JsonObject;
 
 import net.scyllamc.matan.prudence.learning.Website;
 import net.scyllamc.matan.prudence.learning.WebsiteFetcher;
+import net.scyllamc.matan.prudence.utils.Utils;
 
 public class Server {
 
 	String host = "10.0.0.1";
 	static int port = 9092;
 
+	public static void write(String str){
+		System.out.print(str +  System.lineSeparator());
+	}
+	
 	public static void run() {
 		try {
+			
+			write("Prudence version " + Main.version + " server mode started." +  System.lineSeparator());
+			
 			boolean a = true;
 
+			while (a) {
+				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+				String[] args = br.readLine().split(" ");
+				
+				write("RECIVED: " + Utils.arrayToString(args) + " A[0] " + args[0]);
+
+				
+				if(args[0].equalsIgnoreCase("learn")){
+					
+					if(args.length > 1 && args[1] != null && args[1].equalsIgnoreCase("all")){
+						write("Fetching articles from all known websites (" + Website.values().length + ")");
+						
+						for(Website site : Website.values()){
+							new WebsiteFetcher(site);
+						}
+						
+					}else if(args.length > 1 &&  args[1] != null &&  Website.fromString(args[1]) != null){
+						write("Fetching articles from " + Website.fromString(args[1]).toString());
+						new WebsiteFetcher(Website.fromString(args[1]));
+						
+					}
+					
+				}
+			}
+			
+			/*
 			System.out.print("RUNNING SERVER!" +  System.lineSeparator());
 
 			new WebsiteFetcher(Website.NYCTIMES);
@@ -74,14 +100,17 @@ public class Server {
 				input.close();
 				socket.close();
 				listener.close();
-				**/
+				
 
-			}
+	*/
+			
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+ 
 
+		
 	}
 
 }

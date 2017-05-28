@@ -1,13 +1,13 @@
 package net.scyllamc.matan.prudence.learning;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,7 +36,7 @@ public class WebsiteFetcher implements PTask {
 
 	public static HashMap<UUID, WebsiteFetcher> webFetchTasks = new HashMap<UUID, WebsiteFetcher>();
 
-	private List<String> articles = Collections.synchronizedList(new ArrayList<String>());
+	private Map<String, String> articles = Collections.synchronizedMap((Map<String, String>) new HashMap<String, String>());
 
 	private UUID ID;
 	private Website site;
@@ -68,30 +68,41 @@ public class WebsiteFetcher implements PTask {
 			Elements links = doc.select("a");
 
 			int count = 0;
-			int max = 100;
+			int max = 120;
+			int known = 0;
 
 			ExecutorService executor = Executors.newFixedThreadPool(15);
 			JsonObject article_history = FileHandler.Files.ARTICLE_HISTORY.getJson();
 			Date date = new Date();
 
 			for (final Element element : links) {
+
 				if (count < max) {
 
+					String url = element.attr("href");
+					
+					if (site.hasURLPrefix()) {
+						url = site.getURL() + url;
+					}
+
 					MessageDigest md = MessageDigest.getInstance("MD5");
-					md.update(element.absUrl("href").getBytes("UTF-8"));
-					String hash = new String(md.digest());
+					md.update(url.getBytes(), 0, url.length());
+					String hash = new BigInteger(1, md.digest()).toString(16);
 
 					if (!article_history.has(hash)) {
 						JsonObject a = new JsonObject();
-						a.addProperty("URL", element.absUrl("href"));
+						a.addProperty("URL", url);
 						a.addProperty("DATE", date.toString());
 						article_history.add(hash, a);
-						executor.execute(new ArticleParseTask(element, client, site, getID()));
-					}else{
-						LogHandler.print(1, "Article " + hash + " has been read before");
+						
+						executor.execute(new ArticleParseTask(url, client, site, getID()));
+						count++;
+
+					} else {
+						LogHandler.print(1, "Article " + url + " has been read before");
+						known++;
 					}
-					
-					count++;
+
 				}
 			}
 
@@ -101,15 +112,15 @@ public class WebsiteFetcher implements PTask {
 
 			int length = 0;
 
-			for (String s : articles) {
+			for (String s : articles.keySet()) {
 				length += s.length();
-				new ParseTask(s);
+				new ParseTask(articles.get(s), s);
 			}
 
 			FileHandler.Files.ARTICLE_HISTORY.setJson(article_history);
 
 			finished = true;
-			LogHandler.print(0, "Finished article fetch, Found " + articles.size() + " articles, total length: " + length);
+			LogHandler.print(0, "Finished article fetch, Found " + articles.size() + " new articles, total length: " + length + " also found " + known + " known articles.");
 
 		} catch (IOException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
@@ -117,8 +128,8 @@ public class WebsiteFetcher implements PTask {
 
 	}
 
-	public void addArticleText(String text) {
-		this.articles.add(text);
+	public void addArticleText(String text, String url) {
+		this.articles.put(text, url);
 	}
 
 	@Override

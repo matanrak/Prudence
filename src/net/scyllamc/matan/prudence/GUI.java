@@ -137,7 +137,7 @@ public class GUI extends JFrame {
 					} else {
 						
 						//Parser.Parse(inputParse.getText());
-						new ParseTask(inputParse.getText());
+						new ParseTask("Given text", inputParse.getText());
 					}
 
 				}

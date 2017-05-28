@@ -27,6 +27,7 @@ public class ParseTask implements PTask{
 
 	private UUID ID;
 	private String text;
+	private String source;
 	private boolean finished;
 	private boolean started;
 	private int wordsParsed;
@@ -34,9 +35,10 @@ public class ParseTask implements PTask{
 	private int length;
 	
 	
-	public ParseTask(String text){
+	public ParseTask(String source, String text){
 		this.ID = UUID.randomUUID();
 		this.text = text;
+		this.source = source;
 		this.finished = false;
 		this.started = false;
 		parseTasks.put(this.ID, this);
@@ -118,6 +120,7 @@ public class ParseTask implements PTask{
 	public String getStatus() {
 		String[] inf = new String[]{
 		"Parse task for: " + this.length + " words",	
+		"Source: " + source,
 		"TASK ID: " + this.ID,	
 		getPercentage() + "% Finished (" + this.wordsParsed + "/" + this.length + ")",	
 		Utils.timeToString(getElasped()) + " passed since started",

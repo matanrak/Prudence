@@ -11,7 +11,7 @@ public class Main {
 	}
 
 	public static String version = "0.4";
-	public static String mainDirectory;
+	public static String mainDirectory = "/Users/matanrak/Prudence";
 
 	public static int wordCount = -1;
 
