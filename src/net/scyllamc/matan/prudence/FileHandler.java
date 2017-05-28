@@ -1,4 +1,4 @@
-package net.scyllamc.matan.prudence.utils;
+package net.scyllamc.matan.prudence;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,15 +10,15 @@ import java.io.IOException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import net.scyllamc.matan.prudence.Main;
-
 
 public class FileHandler {
 
 
 	public static enum Files {
 
-		LOG("log", Main.getDir());
+		LOG("log", Main.mainDirectory + File.separator + "conf"),
+		ARTICLE_HISTORY("article_history", Main.mainDirectory + File.separator + "conf"),
+		GLOBAL_DATA("global_data", Main.mainDirectory + File.separator + "conf");
 
 		private File file;
 		private File directory;

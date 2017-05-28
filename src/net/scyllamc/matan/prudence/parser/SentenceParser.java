@@ -42,17 +42,15 @@ public class SentenceParser implements Runnable {
 								word.addAfterWord(after);
 							}
 						}
-
+						
 						ParseTask.parseTasks.get(taskID).addCachedWord(word);
-
+						
 						word.addCount(1);
 						Main.addWordCount(1);
 					}
 					array.add(word);
-
 				}
 			}
-
 		}
 
 		ParseTask.parseTasks.get(taskID).addWordsParsed(words.length);

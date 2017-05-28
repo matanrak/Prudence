@@ -1,43 +1,43 @@
 package net.scyllamc.matan.prudence;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import net.scyllamc.matan.prudence.utils.FileHandler;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Timer;
 
 public class Main {
 
-	public static enum Mode { SERVER, GUI; }
+	public static enum Mode {
+		SERVER, GUI;
+	}
 
 	public static String version = "0.4";
-	public static String mainDirectory = "/Users/matanrak/Prudence";
+	public static String mainDirectory;
 
 	public static int wordCount = -1;
-	
+
 	public static Mode mode;
-	private static GUI ui;
 	private static FileHandler fileHandler;
 	private static Timer parserHandler;
 
-	private static File config;
-
 	public static void main(String[] args) {
 
-		String dir = mainDirectory;
+		String dir = "";
 
 		if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0) {
 			dir = "D:\\Matan Rak\\Java Projects\\Prudence";
 		} else {
 			dir = "/Users/matanrak/Prudence";
-		} 
+		}
+		
+		mainDirectory = dir;
+		
+		if (FileHandler.Files.GLOBAL_DATA.getJson().has("wordCount")) {
+			wordCount = Integer.parseInt(FileHandler.Files.GLOBAL_DATA.getJson().get("wordCount").toString());
+		} else {
+
+			addWordCount(0);
+			wordCount = 0;
+		}
 		
 		parserHandler = new Timer();
 		parserHandler.schedule(new TaskManager(), 0, 100);
@@ -68,20 +68,21 @@ public class Main {
 			e.printStackTrace();
 		}
 
-		mainDirectory = dir;
-		config = new File(mainDirectory + File.separator + "_CONFIG_.json");
-
 		if (mode == Mode.GUI) {
 			GUI f = new GUI();
 			f.setVisible(true);
-			ui = f;
 		} else {
 			Server.run();
 		}
 
-		wordCount = getGlobalWordCount();
+		
+		
 	}
 
+	public static String getDir() {
+		return mainDirectory;
+	}
+	
 	public static Timer getParseTaskHandler() {
 		return parserHandler;
 	}
@@ -90,106 +91,23 @@ public class Main {
 		return fileHandler;
 	}
 
-	@SuppressWarnings("static-access")
-	public static int getGlobalWordCount() {
-
-		if (wordCount == -1) {
-
-			if (config == null) {
-				config = new File(mainDirectory + File.separator + "_CONFIG_.json");
-			}
-
-			if (config.exists()) {
-
-				BufferedReader reader;
-				JsonObject obj = null;
-
-				try {
-					reader = new BufferedReader(new FileReader(config));
-					obj = new Gson().fromJson(reader, JsonObject.class);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				}
-
-				if (obj.has("globalCount")) {
-					wordCount = Integer.parseInt(obj.get("globalCount").toString());
-				}
-
-			} else {
-
-				addWordCount(0);
-				wordCount = 0;
-
-			}
-
-			if (mode == Mode.GUI) {
-
-				if (ui.labelCount != null) {
-					ui.labelCount.setText("Global word count: " + wordCount + " Cache: " + Word.cache.size());
-				}
-			}
-
-		}
-		return wordCount;
-	}
-
 	public static void addWordCount(Integer i) {
-
 		wordCount += i;
 	}
-	
-	public static void setGlobalWordCount(int i){
 
-		JsonObject obj = new JsonObject();
-		obj.addProperty("globalCount", i);
+	public static void setGlobalWordCount(int i) {
+		wordCount = i;
+		
+		JsonObject obj = FileHandler.Files.GLOBAL_DATA.getJson();
 
-		if (config.exists()) {
-
-			BufferedReader reader;
-
-			try {
-				reader = new BufferedReader(new FileReader(config));
-				obj = new Gson().fromJson(reader, JsonObject.class);
-
-				if (obj.has("globalCount")) {
-					obj.remove("globalCount");
-				}
-
-				obj.addProperty("globalCount", i);
-
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
+		if (obj.has("wordCount")){
+			obj.remove("wordCount");
 		}
+		
+		obj.addProperty("wordCount", wordCount);
 
-		try {
-			FileWriter writer = new FileWriter(config);
-			writer.write(obj.toString());
-			writer.close();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
+		FileHandler.Files.GLOBAL_DATA.setJson(obj);	
 	}
 
-	public static int itemCount(String s, Word w) {
-
-		String[] words = s.split("\\s+");
-		int count = 0;
-
-		for (int i = 0; i < words.length; i++) {
-
-			if (words[i].equalsIgnoreCase(w.toString())) {
-				count++;
-			}
-		}
-
-		return count;
-	}
-
-	public static String getDir() {
-		return mainDirectory;
-	}
 
 }

@@ -41,7 +41,7 @@ public class ParseTask implements PTask{
 		this.started = false;
 		parseTasks.put(this.ID, this);
 		
-		LogHandler.print(0, "Adding task, ID: " + this.ID.toString());
+		LogHandler.print(0, "Adding parse task, ID: " + this.ID.toString());
 		TaskManager.tasks.add(this);
 	}
 	
@@ -73,7 +73,7 @@ public class ParseTask implements PTask{
 				while (!executor.isTerminated()) {}
 				
 				for(String ws : cachedWords){
-					Word.getWord(ws).saveToFile();
+					Word.getWord(ws).save();
 				}
 				
 				cachedWords.clear();

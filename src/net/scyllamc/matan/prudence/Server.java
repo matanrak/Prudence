@@ -1,10 +1,19 @@
 package net.scyllamc.matan.prudence;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.google.gson.JsonObject;
+
+import net.scyllamc.matan.prudence.learning.Website;
+import net.scyllamc.matan.prudence.learning.WebsiteFetcher;
 
 public class Server {
 
@@ -15,9 +24,22 @@ public class Server {
 		try {
 			boolean a = true;
 
-			System.out.print("RUNNING SERVER!");
+			System.out.print("RUNNING SERVER!" +  System.lineSeparator());
 
+			new WebsiteFetcher(Website.NYCTIMES);
+		
+			
 			while (a) {
+
+				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+				System.out.print("Enter String" + System.lineSeparator());
+				
+				String s = br.readLine();
+				
+					System.out.println("TEST: " + s +  System.lineSeparator());
+				
+
+				/**
 				ServerSocket listener = new ServerSocket(port);
 
 				Socket socket = listener.accept();
@@ -27,7 +49,7 @@ public class Server {
 				InputStream input = socket.getInputStream();
 				byte[] buff = new byte[512];
 				int read;
-				
+
 				while ((read = input.read(buff)) != -1) {
 
 					String data = new String(buff, 0, read);
@@ -48,13 +70,13 @@ public class Server {
 					output.writeUTF(prob.toString());
 
 				}
-				
+
 				input.close();
 				socket.close();
 				listener.close();
+				**/
 
 			}
-
 
 		} catch (IOException e) {
 			e.printStackTrace();

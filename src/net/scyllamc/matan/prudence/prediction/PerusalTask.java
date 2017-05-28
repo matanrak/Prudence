@@ -33,6 +33,7 @@ public class PerusalTask implements PTask {
 	private long starttime;
 	private boolean finished;
 	private boolean started;
+	@SuppressWarnings("unused")
 	private int totalPOS;
 	
 	public JsonObject posPool = new JsonObject();
@@ -55,10 +56,10 @@ public class PerusalTask implements PTask {
 		this.sub = sub;
 
 		taskList.put(this.ID, this);
-		LogHandler.print(0, "Adding task, ID: " + this.ID.toString());
+		LogHandler.print(0, "Adding perusal task, ID: " + this.ID.toString());
 	
 		
-		File directory = new File(Main.getDir() + File.pathSeparator + "cahce");
+		File directory = new File( Main.mainDirectory + File.separator + "cache");
 
 		if (!directory.exists()) {
 			directory.mkdir();

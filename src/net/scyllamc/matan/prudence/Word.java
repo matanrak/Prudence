@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -105,6 +104,10 @@ public class Word {
 
 		return this.count;
 	}
+	
+	public JsonObject getSentences(){
+		return this.sentences;
+	}
 
 	public String checkPOS() {
 
@@ -185,7 +188,7 @@ public class Word {
 		return this.sentences;
 	}
 
-	public void saveToFile() {
+	public void save() {
 
 		try {
 			FileWriter writer = new FileWriter(this.getPath());
@@ -199,148 +202,5 @@ public class Word {
 	}
 
 	
-	
-	
-	
-	public Word getProbableAfterWord(String sentence) {
-
-		System.out.println("Trying to get a probable word");
-
-		if (after.size() > 0) {
-
-			Sentence sen = new Sentence(sentence);
-			int senindex = getLocInSentence(sen);
-			String nextPOS = "";
-			float nextPOSCount = 1;
-			float comp = -1;
-
-			Gson gson = new Gson();
-
-			
-			System.out.print("Current Word: " + this.toString() + Utils.newLine);
-			System.out.print("Sentence: " + sen.getSum().toString() +  Utils.newLine);
-
-			System.out.print(" Searching for matches: " +  Utils.newLine);
-			for (Entry<String, JsonElement> entry : sentences.entrySet()) {
-
-
-				JsonArray ja = gson.fromJson(entry.getKey(), JsonArray.class);
-				int count = Integer.parseInt(entry.getValue().toString());
-
-				if (ja.size() >= senindex && ja.size() != 1 && ja.size() < senindex + 7) {
-					float nc = (float) sen.compare(ja);
-
-					nc += ((float) count) * 0.2;
-
-					if (nc > comp) {
-						System.out.print("  (" + nc + ") " + ja.toString() + Utils.newLine);
-						comp = nc;
-						nextPOS = nextPOS.replace("modal ", "");
-						nextPOSCount = ((float) 0.05) * count;
-
-						if(ja.size() > senindex + 1){
-							nextPOS = Utils.clearString(ja.get(senindex + 1).toString());
-						}
-					}
-				}
-			}
-			
-			if(nextPOS != ""){
-				System.out.print(" Found probable next POS: (" + comp + ") " + nextPOS +  Utils.newLine);
-			}else{
-				System.out.print(" No match found." +  Utils.newLine);
-			}
-
-			float prob = 0;
-			Word top = null;
-			final int total = Main.wordCount;
-			
-			System.out.print("---------" + Utils.newLine );
-			System.out.print("Calculating probable word: (" + after.size() + ")" +  Utils.newLine);
-			
-			for (Entry<String, JsonElement> entry : after.entrySet()) {
-				String s = entry.getKey();
-				int value = Integer.parseInt(entry.getValue().toString());
-
-				if (s != null && s.length() > 0) {
-					Word ent = Word.getWord(s);
-					
-					if (ent != null) {
-						int count = ent.getCount();
-
-						if (count > 0) {
-
-							float p1 = ((float) value * 2) / getCount();
-							float p2 = ((float) count) / total;
-
-							float penalty = 1;
-
-							int itemcount = Main.itemCount(sentence, ent);
-
-							for (int r = 0; r < itemcount; r++) {
-
-								if (penalty >= 0.30) {
-									penalty -= 0.30;
-								}
-							}
-
-							float bonus = 0;
-
-							if (ent.getPOS().equalsIgnoreCase(nextPOS)) {
-								bonus = nextPOSCount;
-							}
-
-							float pf = ((float) p1 - p2) * penalty;
-							pf += bonus;
-
-							if (pf > prob && !ent.toString().equalsIgnoreCase(this.toString()) && !ent.toString().equalsIgnoreCase("the")) {
-								
-								System.out.print(" Word: " + ent.toString() +  Utils.newLine);
-
-								if (bonus != 0) {
-									System.out.print("  Bonus: " + bonus + Utils.newLine);
-								}
-								
-								if(penalty != 0){
-									System.out.print("  Penalty: " + penalty + Utils.newLine);
-								}
-								
-								System.out.print("  Fin: " + ent.toString() + " --> "  + pf + Utils.newLine);
-								prob = pf;
-								top = ent;
-							}
-						}
-					}
-				}
-			}
-			return top;
-		}
-
-		return null;
-	}
-
-	
-	
-	
-	
-	public JsonObject getSentences(){
-		return this.sentences;
-	}
-	
-	public int getLocInSentence(Sentence sen) {
-		int c = 0;
-
-		for (Word word : sen.getWords()) {
-
-			if (word != null) {
-				if (word.getPOS().equalsIgnoreCase(this.getPOS())) {
-					return c;
-				}
-			}
-			c++;
-		}
-
-		return c;
-	}
 
 }
