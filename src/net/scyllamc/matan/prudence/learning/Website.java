@@ -3,6 +3,7 @@ package net.scyllamc.matan.prudence.learning;
 public enum Website {
 
 	CNN("http://edition.cnn.com", true, "div", "paragraph", "itemprop", "articleSection"),
+	WP("https://www.washingtonpost.com", false, "p", null, "content", "article"),
 	NYCTIMES("https://www.nytimes.com", false, "p", "story", "property", "article:collection");
 
 	public static Website fromString(String text) {

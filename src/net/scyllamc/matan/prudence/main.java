@@ -10,7 +10,7 @@ public class Main {
 		SERVER, GUI;
 	}
 
-	public static String version = "0.4";
+	public static String version = "0.5";
 	public static String mainDirectory = "/Users/matanrak/Prudence";
 
 	public static int wordCount = -1;
@@ -28,9 +28,9 @@ public class Main {
 		} else {
 			dir = "/Users/matanrak/Prudence";
 		}
-		
+
 		mainDirectory = dir;
-		
+
 		if (FileHandler.Files.GLOBAL_DATA.getJson().has("wordCount")) {
 			wordCount = Integer.parseInt(FileHandler.Files.GLOBAL_DATA.getJson().get("wordCount").toString());
 		} else {
@@ -38,7 +38,7 @@ public class Main {
 			addWordCount(0);
 			wordCount = 0;
 		}
-		
+
 		parserHandler = new Timer();
 		parserHandler.schedule(new TaskManager(), 0, 100);
 
@@ -72,17 +72,14 @@ public class Main {
 			GUI f = new GUI();
 			f.setVisible(true);
 		} else {
-			Server.run();
+			new Server("10.0.0.1", 9092);
 		}
-
-		
-		
 	}
 
 	public static String getDir() {
 		return mainDirectory;
 	}
-	
+
 	public static Timer getParseTaskHandler() {
 		return parserHandler;
 	}
@@ -97,17 +94,16 @@ public class Main {
 
 	public static void setGlobalWordCount(int i) {
 		wordCount = i;
-		
+
 		JsonObject obj = FileHandler.Files.GLOBAL_DATA.getJson();
 
-		if (obj.has("wordCount")){
+		if (obj.has("wordCount")) {
 			obj.remove("wordCount");
 		}
-		
+
 		obj.addProperty("wordCount", wordCount);
-
-		FileHandler.Files.GLOBAL_DATA.setJson(obj);	
+		
+		FileHandler.Files.GLOBAL_DATA.setJson(obj);
 	}
-
 
 }

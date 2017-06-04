@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,15 +30,18 @@ import net.scyllamc.matan.prudence.FileHandler;
 import net.scyllamc.matan.prudence.LogHandler;
 import net.scyllamc.matan.prudence.PTask;
 import net.scyllamc.matan.prudence.TaskManager;
+import net.scyllamc.matan.prudence.User;
 import net.scyllamc.matan.prudence.parser.ParseTask;
 
 public class WebsiteFetcher implements PTask {
 
 	public static HashMap<UUID, WebsiteFetcher> webFetchTasks = new HashMap<UUID, WebsiteFetcher>();
 
-	private Map<String, String> articles = Collections.synchronizedMap((Map<String, String>) new HashMap<String, String>());
+	private Map<String, String> articles = new ConcurrentHashMap<String, String>();
 
 	private UUID ID;
+	@SuppressWarnings("unused")
+	private User user;
 	private Website site;
 	private boolean finished;
 	private boolean started;
@@ -52,6 +55,12 @@ public class WebsiteFetcher implements PTask {
 
 		LogHandler.print(0, "Adding website fetcher task, ID: " + this.ID.toString());
 		TaskManager.tasks.add(this);
+	}
+	
+	@Override
+	public void run(User user) {
+		this.user = user;
+		this.run();
 	}
 
 	@Override
@@ -68,7 +77,7 @@ public class WebsiteFetcher implements PTask {
 			Elements links = doc.select("a");
 
 			int count = 0;
-			int max = 120;
+			int max = 2000;
 			int known = 0;
 
 			ExecutorService executor = Executors.newFixedThreadPool(15);
@@ -95,7 +104,7 @@ public class WebsiteFetcher implements PTask {
 						a.addProperty("DATE", date.toString());
 						article_history.add(hash, a);
 						
-						executor.execute(new ArticleParseTask(url, client, site, getID()));
+						executor.execute(new ArticleParseTask(url, client, site, ID));
 						count++;
 
 					} else {
@@ -161,5 +170,6 @@ public class WebsiteFetcher implements PTask {
 	public String getStatus() {
 		return "NO STATUS MESSAGE";
 	}
+
 
 }

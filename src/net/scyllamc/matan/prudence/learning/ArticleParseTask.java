@@ -41,22 +41,25 @@ public class ArticleParseTask implements Runnable {
 				String fin = "";
 
 				Document doc = Jsoup.parse(HTML);
-				Elements pars = doc.select(site.getParType());
+				Elements elements = doc.select(site.getParType());
 
 				if (hasMetaData(doc, site)) {
 
-					for (Element par : pars) {
+					for (Element element : elements) {
 
-						if (par.className().contains(site.getParIdentifier())) {
-							fin += par.text();
+						if (site.getParIdentifier() == null || (site.getParIdentifier() != null && element.className().contains(site.getParIdentifier()))) {
+							fin += element.text();				
 						}
 
 					}
+					
+					LogHandler.print(2, "META DATA: " + url);
+					WebsiteFetcher.webFetchTasks.get(taskID).addArticleText(fin, url);
+
 				}else{
 					LogHandler.print(3, "NO META DATA: " + url);
 				}
 
-				WebsiteFetcher.webFetchTasks.get(taskID).addArticleText(fin, url);
 			} catch (ParseException | IOException e) {
 				e.printStackTrace();
 			}

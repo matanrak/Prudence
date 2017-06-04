@@ -103,7 +103,7 @@ public class GUI extends JFrame {
 
 					Word word = Word.getWord(s);
 					
-					new PerusalTask(word, inputProb.getText().split("\\s+"));
+					new PerusalTask(word, inputProb.getText().split("\\s+"), null);
 					/**
 					Word prob = word.getProbableAfterWord(inputProb.getText());
 

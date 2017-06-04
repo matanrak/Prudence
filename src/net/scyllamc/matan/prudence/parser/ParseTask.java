@@ -14,6 +14,7 @@ import net.scyllamc.matan.prudence.LogHandler;
 import net.scyllamc.matan.prudence.Main;
 import net.scyllamc.matan.prudence.PTask;
 import net.scyllamc.matan.prudence.TaskManager;
+import net.scyllamc.matan.prudence.User;
 import net.scyllamc.matan.prudence.Word;
 import net.scyllamc.matan.prudence.utils.Utils;
 
@@ -26,6 +27,8 @@ public class ParseTask implements PTask{
 	private List<String> cachedWords =  Collections.synchronizedList(new ArrayList<String>());
 
 	private UUID ID;
+	@SuppressWarnings("unused")
+	private User user;
 	private String text;
 	private String source;
 	private boolean finished;
@@ -47,7 +50,14 @@ public class ParseTask implements PTask{
 		TaskManager.tasks.add(this);
 	}
 	
-	
+
+
+	@Override
+	public void run(User user) {
+		this.user = user;
+		this.run();
+	}
+
 	@Override
 	public void run(){
 
@@ -154,7 +164,6 @@ public class ParseTask implements PTask{
 	public int getTextLength(){
 		return this.length;
 	}
-
 
 	
 

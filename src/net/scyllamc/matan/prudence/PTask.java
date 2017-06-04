@@ -6,6 +6,8 @@ public interface PTask {
 
 	public void run();
 	
+	public void run(User user);
+
 	public UUID getID();
 	
 	public long getElasped();

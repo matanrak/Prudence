@@ -18,18 +18,20 @@ import net.scyllamc.matan.prudence.LogHandler;
 import net.scyllamc.matan.prudence.Main;
 import net.scyllamc.matan.prudence.PTask;
 import net.scyllamc.matan.prudence.TaskManager;
+import net.scyllamc.matan.prudence.User;
 import net.scyllamc.matan.prudence.Word;
 import net.scyllamc.matan.prudence.utils.Utils;
 
 
-public class PerusalTask implements PTask {
+public class PerusalTask implements PTask{
 
 	public static HashMap<UUID, PerusalTask> taskList = new HashMap<UUID, PerusalTask>();
-	
+
 	private UUID ID;
 	private Word word;
 	private String[] sub;
 	private File file;
+	private User user;
 	private long starttime;
 	private boolean finished;
 	private boolean started;
@@ -38,11 +40,11 @@ public class PerusalTask implements PTask {
 	
 	public JsonObject posPool = new JsonObject();
 	public JsonObject wordProbability = new JsonObject();
-
 	
-	public PerusalTask(Word word, String[] subStrings){
+	public PerusalTask(Word word, String[] subStrings, User user){
 		this.ID = UUID.randomUUID();
 		this.word = word;
+		this.user = user;
 		
 		String[] sub = new String[subStrings.length];
 		
@@ -78,7 +80,17 @@ public class PerusalTask implements PTask {
 			}
 		}
 		 
-		run();
+		if(this.user == null){
+			this.run();
+		}else{
+			this.run(this.user);
+		}
+	}
+	
+	@Override
+	public void run(User user) {
+		this.user = user;
+		this.run();
 	}
 	
 	
@@ -133,11 +145,15 @@ public class PerusalTask implements PTask {
 				}
 		
 				Main.setGlobalWordCount(Main.wordCount);
-				
 				finished = true; 
+				
+				if(user != null){
+					user.setFile(file);
+					user.setState(true);
+				}
+				
 				LogHandler.print(2, "posPool size: " + posPool.size());
 				LogHandler.print(1, "Finished Perusal task ID: " + ID);
-				
 			}
 		}).start();
 		 
@@ -210,7 +226,8 @@ public class PerusalTask implements PTask {
 		
 		return String.join(System.lineSeparator(), inf);
 	}
-	
+
+
 	
 	
 }
