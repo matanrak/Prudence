@@ -9,6 +9,7 @@ Prudence can find text by itself in articles from news sites (that are set in an
   Later by using it's furmula it decides the reletive probability (it's not mathematical probability because it's not in the range of 0 - 1, but it is still reletive to the other words) for every known word to come after word X to come after it in a certian sentence structure, the answere will change drastcally based on the current sentence structure.
 
 Example output file for the word 'He':
+
 {
   "Word": "He",
   "Word_Pos": "short form of",
