@@ -1,5 +1,5 @@
 # Prudence
-Prudence - My first attempt at learning algorithm
+
 
   This is my first attempt at a learning algorithm, it learns by either reciving text or by finding text on it's own.
 Prudence can find text by itself in articles from news sites (that are set in an enum) and learn from those, it will not learn twice from the same article. 
