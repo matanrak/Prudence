@@ -72,6 +72,7 @@ public class Word {
 		}).start();
 	}
 
+	@Override
 	public String toString() {
 		return this.word;
 	}

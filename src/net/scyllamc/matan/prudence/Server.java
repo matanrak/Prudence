@@ -25,7 +25,7 @@ public class Server {
 			if (host != null) {
 				this.host = host;
 			} else {
-				this.host = "10.0.0.1";
+				this.host = "10.0.0.67";
 			}
 
 			this.port = port;

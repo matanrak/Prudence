@@ -12,8 +12,10 @@ import com.google.gson.reflect.TypeToken;
 
 public class Utils {
 
+	
 	public static String newLine = System.getProperty("line.separator");
 
+	
 	public static String clearString(String in) {
 		String s = in;
 		s = s.replaceAll("[^a-zA-Z]", "");
@@ -51,6 +53,7 @@ public class Utils {
 		return fin;
 	}
 	
+	
 	public static String arrayToString(String[] a) {
 		String fin = "";
 
@@ -61,4 +64,10 @@ public class Utils {
 
 		return fin;
 	}
+	
+	
+	public static double sigmoidValue(Double arg) {
+        return (1 / (1 + Math.exp(-arg)));
+    }
+	
 }

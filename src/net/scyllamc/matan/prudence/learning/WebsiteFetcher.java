@@ -70,7 +70,7 @@ public class WebsiteFetcher implements PTask {
 			HttpClient client = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build();
 			HttpGet request = new HttpGet(site.getURL());
 			HttpResponse response = client.execute(request);
-
+			
 			String HTML = EntityUtils.toString(response.getEntity());
 
 			Document doc = Jsoup.parse(HTML);
